@@ -1,0 +1,2 @@
+# Monogami
+A Decent Monogami
