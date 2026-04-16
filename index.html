@@ -1,0 +1,262 @@
+<html>
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Systemmigrering - Hacker Terminal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --glass: rgba(0, 20, 0, 0.4);
+            --glass-border: rgba(0, 255, 65, 0.2);
+            --hacker-green: #00ff41;
+            --burn-orange: #adff2f;
+        }
+
+        body {
+            background: #000500;
+            color: var(--hacker-green);
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .panel {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 2.5rem;
+            width: 95%;
+            max-width: 600px;
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.1);
+            position: relative;
+        }
+
+        /* Ugle Animasjon */
+        .owl-container {
+            position: relative;
+            height: 150px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .owl {
+            width: 80px;
+            fill: var(--hacker-green);
+            filter: drop-shadow(0 0 5px var(--hacker-green));
+        }
+
+        .eye {
+            animation: blink 4s infinite;
+            transform-origin: center;
+        }
+
+        @keyframes blink {
+            0%, 90%, 94%, 100% { transform: scaleY(1); }
+            92% { transform: scaleY(0.1); }
+        }
+
+        /* Hacker Barometer / Stjerneskudd */
+        .barometer-container {
+            position: relative;
+            width: 100%;
+            height: 40px;
+            background: rgba(0, 40, 0, 0.5);
+            border: 1px solid var(--hacker-green);
+            margin: 30px 0;
+            padding: 2px;
+            overflow: visible;
+        }
+
+        .burning-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #003b00, var(--hacker-green));
+            position: relative;
+            box-shadow: 0 0 15px var(--hacker-green);
+        }
+
+        /* Stjerneskudd / Spark effekt */
+        .spark {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            width: 10px;
+            height: 10px;
+            background: var(--burn-orange);
+            border-radius: 50%;
+            box-shadow: 0 0 20px 5px var(--burn-orange), 0 0 40px 10px var(--hacker-green);
+            transform: translateY(-50%);
+        }
+
+        .shooting-star {
+            position: absolute;
+            right: 0;
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(to left, var(--burn-orange), transparent);
+            animation: shoot 0.5s infinite linear;
+        }
+
+        @keyframes shoot {
+            0% { transform: translateX(0) scaleX(1); opacity: 1; }
+            100% { transform: translateX(-50px) scaleX(0); opacity: 0; }
+        }
+
+        .percentage-text {
+            position: absolute;
+            right: 10px;
+            top: -25px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--hacker-green);
+        }
+
+        /* Offline Modus */
+        .hidden { display: none; }
+
+        .error-code {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #ff0000;
+            text-align: center;
+            text-shadow: 0 0 10px #ff0000;
+            animation: shake 0.2s infinite;
+        }
+
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10px { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            100% { transform: translate(1px, -1px) rotate(0deg); }
+        }
+
+        .domain-card {
+            border: 1px solid var(--glass-border);
+            padding: 1rem;
+            margin: 10px 0;
+            background: rgba(0, 255, 65, 0.05);
+            transition: 0.3s;
+        }
+
+        .domain-card:hover {
+            background: rgba(0, 255, 65, 0.2);
+            box-shadow: 0 0 15px var(--hacker-green);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="panel" id="main-panel">
+        <!-- FASE 1: BAROMETER SOM BRENNER -->
+        <div id="loading-phase">
+            <div class="owl-container">
+                <svg class="owl" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="1"/>
+                    <circle class="eye" cx="35" cy="42" r="6" fill="currentColor"/>
+                    <circle class="eye" cx="65" cy="42" r="6" fill="currentColor"/>
+                    <path d="M46 58 L50 66 L54 58 Z" fill="currentColor"/>
+                </svg>
+            </div>
+
+            <div class="text-center mb-2 text-xs tracking-widest uppercase">
+                Dataoverføring: <span id="protocol-status">Krypterer...</span>
+            </div>
+
+            <div class="barometer-container">
+                <div class="percentage-text" id="percent">0%</div>
+                <div class="burning-bar" id="progress-bar">
+                    <div class="spark"></div>
+                    <div class="shooting-star" style="top: 0;"></div>
+                    <div class="shooting-star" style="bottom: 0;"></div>
+                </div>
+            </div>
+
+            <p class="text-[10px] text-center opacity-60">
+                PROSESSERING AV LANGE TRANSAKSJONER... [MÅL: IP_STORAGE]
+            </p>
+        </div>
+
+        <!-- FASE 2: LUKKET / MIGRERT -->
+        <div id="offline-phase" class="hidden">
+            <div class="error-code">404_OFFLINE</div>
+            
+            <div class="text-center my-6 space-y-4">
+                <p class="text-sm">SIDEN ER LUKKET. DATA LAGRET UTEN STRESS.</p>
+                <p class="text-xs opacity-70">Vi fokuserer nå på våre kjerne-tjenester:</p>
+                
+                <a href="https://cultureauction.com" class="block domain-card">
+                    <div class="text-[10px] text-gray-400">HOVEDNETTSTED</div>
+                    <div class="font-bold">cultureauction.com</div>
+                </a>
+
+                <a href="https://Auctionjs.org" class="block domain-card">
+                    <div class="text-[10px] text-gray-400">UTVIKLING / NUXT / VUE</div>
+                    <div class="font-bold">Auctionjs.org</div>
+                </a>
+            </div>
+
+            <div class="text-center text-[10px] text-red-500 animate-pulse">
+                AUTOMATISK REBOOT OM <span id="timer">12</span>s
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const progressBar = document.getElementById('progress-bar');
+        const percentText = document.getElementById('percent');
+        const statusText = document.getElementById('protocol-status');
+        const loadingPhase = document.getElementById('loading-phase');
+        const offlinePhase = document.getElementById('offline-phase');
+        const timerText = document.getElementById('timer');
+
+        let progress = 0;
+        const duration = 15000; // 15 sekunder
+        const intervalTime = 50;
+        const increment = (100 / (duration / intervalTime));
+
+        const loadingInterval = setInterval(() => {
+            progress += increment;
+            if (progress >= 100) {
+                progress = 100;
+                clearInterval(loadingInterval);
+                switchToOffline();
+            }
+            
+            progressBar.style.width = progress + '%';
+            percentText.innerText = Math.floor(progress) + '%';
+
+            // Endre statusmeldinger underveis
+            if (progress > 30) statusText.innerText = "Overfører SQL-dump...";
+            if (progress > 60) statusText.innerText = "Validerer transaksjoner...";
+            if (progress > 90) statusText.innerText = "Fullfører protokoll...";
+        }, intervalTime);
+
+        function switchToOffline() {
+            setTimeout(() => {
+                loadingPhase.classList.add('hidden');
+                offlinePhase.classList.remove('hidden');
+                startCountdown();
+            }, 500);
+        }
+
+        function startCountdown() {
+            let timeLeft = 12;
+            const refreshInterval = setInterval(() => {
+                timeLeft--;
+                timerText.innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(refreshInterval);
+                    window.location.reload();
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
+
