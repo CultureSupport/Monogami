@@ -1,0 +1,290 @@
+<html>
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vokal Sykdom - Samtalens Forfall</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #030303; font-family: 'Courier New', Courier, monospace; }
+        canvas { display: block; }
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 2rem;
+            color: #cc0000;
+            text-shadow: 0 0 5px rgba(255,0,0,0.5);
+        }
+        input {
+            pointer-events: auto;
+            background: rgba(10, 5, 5, 0.9);
+            border: 1px solid #330000;
+            color: #ff4444;
+            padding: 1.2rem;
+            width: 100%;
+            max-width: 500px;
+            outline: none;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1.1rem;
+        }
+        input:focus {
+            border-color: #ff0000;
+            background: rgba(20, 0, 0, 1);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.2);
+        }
+        .vitals { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 3px; line-height: 1.6; }
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 20%, black 140%);
+            pointer-events: none;
+            z-index: 5;
+        }
+        .log-container {
+            max-height: 150px;
+            overflow: hidden;
+            opacity: 0.6;
+            font-size: 0.7rem;
+        }
+    </style>
+</head>
+<body>
+
+<div id="overlay"></div>
+<div id="ui-layer">
+    <div class="flex justify-between items-start">
+        <div class="vitals">
+            <div class="mb-2 opacity-50 text-white">[ SYSTEM ANALYSE ]</div>
+            <div>STATUS: <span id="status-text">AVVENTER DATA</span></div>
+            <div>PATOLOGI: <span id="pathology-type">INGEN</span></div>
+            <div>KORRUPSJON: <span id="disease-val">0%</span></div>
+        </div>
+        <div class="vitals text-right">
+            <div>VENTETID: <span id="wait-timer">0.0s</span></div>
+            <div>ORDSTRØM: <span id="word-velocity">0.0/m</span></div>
+        </div>
+    </div>
+    
+    <div class="flex flex-col items-center gap-6 mb-12">
+        <div id="feedback" class="text-lg tracking-widest uppercase opacity-80 animate-pulse text-center px-4">Stillhet skaper grobunn for sykdom...</div>
+        <input type="text" id="input-field" placeholder="Snakk for å overleve..." autocomplete="off">
+        <div class="log-container" id="event-log"></div>
+    </div>
+</div>
+
+<script>
+/**
+ * Vokal Sykdom - Kartlegging av samtaledynamikk
+ * Sykdommen utvikles gjennom venting og ordlegging.
+ */
+
+window.onload = () => {
+    let diseaseLevel = 0.05; // Litt sykdom fra start (uvitenhet)
+    let idleTime = 0;
+    let totalWords = 0;
+    let lastInputTime = Date.now();
+    let wordVelocity = 0;
+    
+    // Three.js Scene Setup
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Shader for korrupt geometri
+    const vertexShader = `
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        uniform float uTime;
+        uniform float uDisease;
+        
+        float hash(float n) { return fract(sin(n) * 43758.5453123); }
+        float noise(vec3 x) {
+            vec3 p = floor(x);
+            vec3 f = fract(x);
+            f = f*f*(3.0-2.0*f);
+            float n = p.x + p.y*57.0 + 113.0*p.z;
+            return mix(mix(mix( hash(n+  0.0), hash(n+  1.0),f.x),
+                           mix( hash(n+ 57.0), hash(n+ 58.0),f.x),f.y),
+                       mix(mix( hash(n+113.0), hash(n+114.0),f.x),
+                           mix( hash(n+170.0), hash(n+171.0),f.x),f.y),f.z);
+        }
+
+        void main() {
+            vUv = uv;
+            vNormal = normal;
+            
+            // Kaos basert på sykdomsnivå
+            float n = noise(position * 2.0 + uTime * 0.2);
+            float distortion = n * uDisease * 1.5;
+            
+            // "Sykdomsbull" - ujevne utvekster
+            float pulse = sin(uTime * 2.0 + position.y * 5.0) * uDisease * 0.2;
+            
+            vec3 newPos = position + normal * (distortion + pulse);
+            
+            // Rykkete bevegelser ved høy sykdom (angst)
+            if(uDisease > 0.7) {
+                newPos += vec3(hash(uTime)*0.05, hash(uTime+1.0)*0.05, hash(uTime+2.0)*0.05) * (uDisease - 0.7);
+            }
+
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(newPos, 1.0);
+        }
+    `;
+
+    const fragmentShader = `
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        uniform float uTime;
+        uniform float uDisease;
+
+        void main() {
+            // Fargekartlegging
+            vec3 colorA = vec3(0.05, 0.05, 0.08); // Frisk/Mørk
+            vec3 colorB = vec3(0.6, 0.1, 0.1);    // Betennelse
+            vec3 colorC = vec3(0.1, 0.0, 0.0);    // Nekrose
+            
+            vec3 baseColor = mix(colorA, colorB, uDisease);
+            if(uDisease > 0.6) {
+                baseColor = mix(baseColor, colorC, (uDisease - 0.6) * 2.5);
+            }
+            
+            // Glødende "nervebaner"
+            float pattern = sin(vUv.x * 20.0 + uTime) * cos(vUv.y * 20.0 - uTime);
+            vec3 glow = vec3(1.0, 0.2, 0.0) * pow(pattern, 3.0) * uDisease;
+            
+            gl_FragColor = vec4(baseColor + glow * 0.5, 1.0);
+        }
+    `;
+
+    const geometry = new THREE.IcosahedronGeometry(2, 100);
+    const material = new THREE.ShaderMaterial({
+        vertexShader,
+        fragmentShader,
+        uniforms: {
+            uTime: { value: 0 },
+            uDisease: { value: 0 }
+        },
+        wireframe: true
+    });
+
+    const subject = new THREE.Mesh(geometry, material);
+    scene.add(subject);
+    camera.position.z = 7;
+
+    // UI Elementer
+    const input = document.getElementById('input-field');
+    const diseaseLabel = document.getElementById('disease-val');
+    const timerLabel = document.getElementById('wait-timer');
+    const velocityLabel = document.getElementById('word-velocity');
+    const pathologyLabel = document.getElementById('pathology-type');
+    const statusLabel = document.getElementById('status-text');
+    const logContainer = document.getElementById('event-log');
+
+    function addLog(msg) {
+        const div = document.createElement('div');
+        div.innerText = `> ${new Date().toLocaleTimeString()}: ${msg}`;
+        logContainer.prepend(div);
+        if(logContainer.childNodes.length > 5) logContainer.removeChild(logContainer.lastChild);
+    }
+
+    input.addEventListener('input', (e) => {
+        const now = Date.now();
+        const diff = (now - lastInputTime) / 1000;
+        lastInputTime = now;
+        idleTime = 0; // Nullstill venting ved aktivitet
+
+        const words = e.target.value.trim().split(/\s+/).length;
+        wordVelocity = (words / (diff + 0.1)) * 10; // Relativ hastighet
+
+        // Ordlegging gjør deg sykere
+        diseaseLevel += 0.005; 
+        
+        if(e.target.value.length % 20 === 0) {
+            addLog("Vokalt trykk detektert...");
+        }
+    });
+
+    function updateLogic() {
+        const now = Date.now();
+        const secondsSinceInput = (now - lastInputTime) / 1000;
+        
+        // Venting gjør deg sykere (Stagnasjonssyke)
+        if(secondsSinceInput > 2.0) {
+            idleTime += 0.001;
+            diseaseLevel += 0.0005; // Passiv økning
+        }
+
+        // Kartlegging av patologi
+        if (diseaseLevel < 0.2) {
+            pathologyLabel.innerText = "LATENT UVITENHET";
+            statusLabel.innerText = "STABIL";
+            material.wireframe = true;
+        } else if (wordVelocity > 50) {
+            pathologyLabel.innerText = "AKUTT ORDFLOM";
+            statusLabel.innerText = "HYPERVENTILERER";
+            diseaseLevel += 0.001; 
+        } else if (secondsSinceInput > 5.0) {
+            pathologyLabel.innerText = "STAGNERENDE STILLHET";
+            statusLabel.innerText = "FORFALLER";
+            material.wireframe = false;
+        } else {
+            pathologyLabel.innerText = "KRONISK TALEFORSTYRRELSE";
+            statusLabel.innerText = "INFISERT";
+        }
+
+        // Grenseverdi
+        diseaseLevel = Math.min(1.0, diseaseLevel);
+        
+        // Oppdater UI
+        diseaseLabel.innerText = Math.round(diseaseLevel * 100) + "%";
+        timerLabel.innerText = secondsSinceInput.toFixed(1) + "s";
+        velocityLabel.innerText = wordVelocity.toFixed(1) + "/m";
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+        updateLogic();
+        
+        const time = performance.now() * 0.001;
+        material.uniforms.uTime.value = time;
+        material.uniforms.uDisease.value = diseaseLevel;
+        
+        // Kameraangst (risting ved høy sykdom)
+        if(diseaseLevel > 0.8) {
+            camera.position.x = Math.sin(time * 50.0) * 0.02;
+            camera.position.y = Math.cos(time * 45.0) * 0.02;
+        }
+
+        subject.rotation.y += 0.005 + (diseaseLevel * 0.05);
+        subject.rotation.z += 0.002;
+        
+        renderer.render(scene, camera);
+    }
+
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    animate();
+    addLog("System initialisert. Subjekt observert.");
+};
+</script>
+</body>
+</html>
+
