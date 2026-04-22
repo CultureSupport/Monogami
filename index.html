@@ -1,0 +1,257 @@
+```html
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevSystem Social - Ole Olessiall</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
+            color: #f8fafc;
+        }
+
+        .glass {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .new-post { animation: slideDown 0.5s ease-out forwards; }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Topp-navigasjon -->
+    <nav class="sticky top-0 z-50 glass border-b border-slate-800 px-4 py-3">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white">D</div>
+                <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">DevSocial</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <button class="p-2 text-slate-400 hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button>
+                <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 overflow-hidden">
+                    <!-- NFT bilde i nav -->
+                    <img src="https://api.dicebear.com/7.x/big-smile/svg?seed=OleNFT&backgroundColor=b6e3f4" alt="Bruker">
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 p-4 md:p-6 pb-24 lg:pb-6">
+        
+        <!-- Profilseksjon -->
+        <aside class="lg:col-span-4 space-y-6">
+            <div class="glass rounded-3xl overflow-hidden">
+                <div class="h-24 bg-gradient-to-br from-indigo-600 to-blue-700"></div>
+                <div class="px-6 pb-6 text-center">
+                    <div class="relative -mt-12 mb-4 inline-block">
+                        <!-- Oppdatert til NFT-stil bilde -->
+                        <img src="https://api.dicebear.com/7.x/big-smile/svg?seed=OleNFT&backgroundColor=b6e3f4" class="w-24 h-24 rounded-2xl bg-slate-800 border-4 border-slate-950 shadow-xl" alt="Ole Olessiall NFT Profil">
+                        <div class="absolute bottom-1 right-1 w-5 h-5 bg-green-500 border-2 border-slate-950 rounded-full"></div>
+                    </div>
+                    <!-- Navn endret til Ole Olessiall -->
+                    <h1 class="text-2xl font-bold">Ole Olessiall</h1>
+                    <p class="text-slate-400 text-sm mb-4">@ole_nft_dev • GDE</p>
+                    
+                    <div class="flex justify-center gap-4 py-4 border-y border-slate-800/50 my-4">
+                        <div class="text-center">
+                            <div class="font-bold">200</div>
+                            <div class="text-[10px] text-slate-500 uppercase">Feeds</div>
+                        </div>
+                        <div class="w-px h-8 bg-slate-800"></div>
+                        <div class="text-center">
+                            <div class="font-bold">1.5k</div>
+                            <div class="text-[10px] text-slate-500 uppercase">Følgere</div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 text-left">
+                        <div class="flex items-center gap-3 text-sm text-slate-300">
+                            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                            <span>Google Developer Program</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm text-slate-300">
+                            <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                            <span>Jetpack Compose Contributor</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass rounded-3xl p-6 hidden lg:block">
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Siste Teknologier</h3>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-3 py-1 bg-slate-800 text-xs rounded-full">TensorFlow</span>
+                    <span class="px-3 py-1 bg-slate-800 text-xs rounded-full">Kubernetes</span>
+                    <span class="px-3 py-1 bg-slate-800 text-xs rounded-full">Firebase</span>
+                    <span class="px-3 py-1 bg-slate-800 text-xs rounded-full">Flutter</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Sosiale Feed -->
+        <div class="lg:col-span-8 space-y-4">
+            
+            <!-- Filter -->
+            <div class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+                <button onclick="filterFeed('Alt')" class="filter-btn active px-5 py-2 glass rounded-2xl text-sm font-medium whitespace-nowrap bg-blue-600 border-blue-500">Alt</button>
+                <button onclick="filterFeed('GitHub')" class="filter-btn px-5 py-2 glass rounded-2xl text-sm font-medium whitespace-nowrap">GitHub</button>
+                <button onclick="filterFeed('Google')" class="filter-btn px-5 py-2 glass rounded-2xl text-sm font-medium whitespace-nowrap">Google</button>
+                <button onclick="filterFeed('Code')" class="filter-btn px-5 py-2 glass rounded-2xl text-sm font-medium whitespace-nowrap">Koder</button>
+            </div>
+
+            <!-- Meldinger Container -->
+            <div id="feed-container" class="space-y-4">
+                <!-- Meldinger injiseres her via JS -->
+            </div>
+
+            <div id="loading-indicator" class="text-center py-8 text-slate-500 text-sm flex items-center justify-center gap-3">
+                <div class="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                Laster inn flere samtidige meldinger...
+            </div>
+        </div>
+    </main>
+
+    <!-- Mobil Bunn-meny -->
+    <div class="fixed bottom-0 left-0 right-0 glass border-t border-slate-800 p-4 flex justify-around lg:hidden">
+        <button class="text-blue-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></button>
+        <button class="text-slate-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></button>
+        <button class="text-slate-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg></button>
+        <button class="text-slate-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></button>
+    </div>
+
+    <script>
+        const feedContainer = document.getElementById('feed-container');
+        let currentFilter = 'Alt';
+        let allPosts = [];
+
+        const users = ['AndroidDev', 'GDE_Kasper', 'GitHub_Actions', 'OpenSource_Bot', 'GoogleDevs', 'JetpackCompose_Fan', 'Firebase_Ninja'];
+        const tags = ['GitHub', 'Google', 'Code', 'System'];
+        const contents = [
+            "Nettopp ferdig med en ny Jetpack Compose UI komponent! #android",
+            "Sjekk ut de nyeste oppdateringene i Google Developer Programmet.",
+            "GitHub repositoryet mitt nådde nettopp 100 stjerner! ⭐",
+            "Løste en kritisk bug i Kubernetes clusteret i dag. Føles godt.",
+            "Ny bloggpost ute: Hvordan bruke TensorFlow med Flutter.",
+            "Sjekker ut Gemini API for bildegjenkjenning. Imponerende!",
+            "Kotlin 2.0 er rett rundt hjørnet. Hva gleder dere dere mest til?",
+            "OSS bidrag er den beste måten å lære på. Her er min nyeste PR.",
+            "Firebase SDK ble nettopp oppdatert med bedre støtte for offline-modus.",
+            "Material 3 Expressive gir appene et helt nytt løft!"
+        ];
+
+        function generatePosts(count) {
+            for (let i = 0; i < count; i++) {
+                const post = {
+                    id: Date.now() + i,
+                    user: users[Math.floor(Math.random() * users.length)],
+                    tag: tags[Math.floor(Math.random() * tags.length)],
+                    content: contents[Math.floor(Math.random() * contents.length)],
+                    avatar: `https://api.dicebear.com/7.x/identicon/svg?seed=${Math.random()}`,
+                    likes: Math.floor(Math.random() * 500),
+                    time: 'Få minutter siden'
+                };
+                allPosts.push(post);
+            }
+            renderFeed();
+        }
+
+        function createPostElement(post, isNew = false) {
+            const div = document.createElement('div');
+            div.className = `glass rounded-3xl p-6 hover:border-slate-600 transition-all ${isNew ? 'new-post' : ''}`;
+            div.dataset.tag = post.tag;
+            
+            const tagColors = {
+                'GitHub': 'bg-slate-700 text-white',
+                'Google': 'bg-blue-900/40 text-blue-300 border border-blue-500/30',
+                'Code': 'bg-green-900/40 text-green-300 border border-green-500/30',
+                'System': 'bg-purple-900/40 text-purple-300 border border-purple-500/30'
+            };
+
+            div.innerHTML = `
+                <div class="flex justify-between items-start mb-4">
+                    <div class="flex gap-4">
+                        <img src="${post.avatar}" class="w-12 h-12 rounded-2xl bg-slate-800" alt="Avatar">
+                        <div>
+                            <h4 class="font-bold text-slate-100">@${post.user}</h4>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] text-slate-500 uppercase font-bold">${post.time}</span>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${tagColors[post.tag] || 'bg-slate-800'}">${post.tag}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-slate-300 leading-relaxed mb-4">${post.content}</p>
+                <div class="flex gap-6 text-slate-500 text-sm">
+                    <button class="flex items-center gap-2 hover:text-pink-500 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                        ${post.likes}
+                    </button>
+                    <button class="flex items-center gap-2 hover:text-blue-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                        Svar
+                    </button>
+                </div>
+            `;
+            return div;
+        }
+
+        function renderFeed() {
+            feedContainer.innerHTML = '';
+            const filtered = currentFilter === 'Alt' ? allPosts : allPosts.filter(p => p.tag === currentFilter);
+            filtered.forEach(post => {
+                feedContainer.appendChild(createPostElement(post));
+            });
+        }
+
+        function filterFeed(tag) {
+            currentFilter = tag;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'border-blue-500');
+                if (btn.innerText === tag) {
+                    btn.classList.add('bg-blue-600', 'border-blue-500');
+                }
+            });
+            renderFeed();
+        }
+
+        function addLivePost() {
+            const newPost = {
+                id: Date.now(),
+                user: users[Math.floor(Math.random() * users.length)],
+                tag: tags[Math.floor(Math.random() * tags.length)],
+                content: "🔴 LIVE: " + contents[Math.floor(Math.random() * contents.length)],
+                avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${Math.random()}`,
+                likes: 0,
+                time: 'Akkurat nå'
+            };
+            allPosts.unshift(newPost);
+            if (allPosts.length > 250) allPosts.pop();
+            
+            if (currentFilter === 'Alt' || currentFilter === newPost.tag) {
+                const el = createPostElement(newPost, true);
+                feedContainer.prepend(el);
+            }
+        }
+
+        // Initierer appen
+        window.onload = () => {
+            generatePosts(200);
+            setInterval(addLivePost, 5000);
+        };
+    </script>
+</body>
+</html>
